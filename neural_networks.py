@@ -74,12 +74,12 @@ def generate_neural_network(x_train, y_train, model_name):
         # Using max pooling to reduce resolution of the output of the convolution to reduce the number of parameters and
         # so cost of computation, also it is a way to extract particular features such as edges, curves, circles..
 
-        for _ in range(1):
-            n_filters = 5
-            model.add(Conv2D(n_filters, kernel_size=(3, 3), activation='relu', input_shape=input_shape, padding="same"))
-            model.add(MaxPooling2D(pool_size=(2, 2)))
-            model.add(Conv2D(n_filters, kernel_size=(3, 3)))
-            model.add(Dropout(0.2))
+        n_filters = 100
+        model.add(Conv2D(n_filters, kernel_size=(3, 3), activation='relu', input_shape=input_shape, padding="same"))
+        model.add(MaxPooling2D(pool_size=(2, 2), padding="valid"))
+        model.add(Conv2D(n_filters, kernel_size=(3, 3), activation='relu', padding="same"))
+        model.add(MaxPooling2D(pool_size=(2, 2), padding="valid"))
+        model.add(Conv2DTranspose(n_filters, kernel_size=(3, 3), activation='relu', padding="same"))
 
         # Transforms matrix feature map to vector for dense layer (fully connected)
         model.add(Flatten())
@@ -88,7 +88,7 @@ def generate_neural_network(x_train, y_train, model_name):
         model.add(Dense(num_cls, activation='softmax'))
 
     # Compiling
-    model.compile(loss=categorical_crossentropy, optimizer=Adadelta(), metrics=['accuracy'])
+    model.compile(loss=categorical_crossentropy, optimizer=Adam(), metrics=['accuracy'])
 
     # Summary of the model
     model.summary()
