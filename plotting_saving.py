@@ -29,6 +29,7 @@ def plotting_loss(history, title=f"Training and Validation"):
     fig, axes = plt.subplots(nrows=1, ncols=2)
     fig.suptitle(title)
 
+    axes[0].grid()
     axes[0].plot(history.history['loss'])
     axes[0].plot(history.history['val_loss'])
     axes[0].set_title('Model loss Evolution')
@@ -37,6 +38,7 @@ def plotting_loss(history, title=f"Training and Validation"):
     axes[0].legend(['Training', 'Validation'], loc='upper right')
 
     # Plot accuracy vs epochs
+    axes[1].grid()
     axes[1].plot(history.history['accuracy'])
     axes[1].plot(history.history['val_accuracy'])
     axes[1].set_title('Model accuracy')

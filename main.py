@@ -13,13 +13,15 @@ def main():
     x_train, y_train, x_test, y_test = preprocess(DATABASE_MNIST)
 
     model_name = "CNN_initial"   # Neural Network 1: CNN with 1 layer
-    model_name = "CNN_dense"  # Neural Network 2: CNN adding dense layers
-    model_name = "CNN_pooling"  # Neural_network 3: CNN full conv 2D and max pooling
+    model_name = "CNN_add_dense"  # Neural Network 2: CNN adding dense layers
+    model_name = "CNN_full_dense"  # Neural Network 2: CNN adding dense layers
+
+    model_name = "CNN_pooling"  # Neural_network 4: CNN full conv 2D and max pooling
 
     history = generate_neural_network(x_train, y_train, model_name)
 
     # Plotting Evolution of the loss and accuracy
-    title_figure = f"Model {model_name} Training of the neural network.png"
+    title_figure = f"Training model {model_name}"
     plotting_loss(history, title_figure)
 
     # Predicting on testing data

@@ -3,9 +3,9 @@ import numpy as np
 import pickle
 
 from tensorflow.keras.utils import to_categorical
-from tensorflow.keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, EarlyStopping
-from tensorflow.keras.optimizers import Adadelta, Adam, SGD
-from tensorflow.keras.layers import Input, Conv2D, Dense, MaxPooling2D, Dropout, Flatten, AveragePooling2D, Conv2DTranspose, UpSampling2D
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+from tensorflow.keras.optimizers import Adam, Adadelta
+from tensorflow.keras.layers import Conv2D, Dense, MaxPooling2D, Dropout, Flatten, Conv2DTranspose, Input
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.losses import categorical_crossentropy
 from tensorflow.keras.models import load_model
@@ -30,8 +30,8 @@ def generate_neural_network(x_train, y_train, model_name):
 
     # EXPLORE VALUES AND FIND A GOOD SET
     batch_size = 100  # batch size
-    val_split = 0.5  # percentage of samples used for validation (e.g. 0.5)
-    ep = 10  # number of epochs
+    validation_split = 0.2  # percentage of samples used for validation (e.g. 0.5)
+    n_epochs = 10  # number of epochs
 
     num_cls = len(np.unique(y_train, axis=0))
 
@@ -45,13 +45,14 @@ def generate_neural_network(x_train, y_train, model_name):
 
         # Input Convolutional 2D layer
         model.add(Conv2D(1, kernel_size=(3, 3), activation='relu', input_shape=input_shape))
+
         # Transforms matrix feature map to vector for dense layer (fully connected)
         model.add(Flatten())
 
         # Adding output layer
         model.add(Dense(num_cls, activation='softmax'))
 
-    elif model_name == "CNN_dense":
+    elif model_name == "CNN_add_dense":
 
         # Adding dense layer for additional parameters
         # Input Convolutional 2D layer
@@ -69,17 +70,31 @@ def generate_neural_network(x_train, y_train, model_name):
         # Adding output layer
         model.add(Dense(num_cls, activation='softmax'))
 
+    elif model_name == "CNN_full_dense":
+
+        model.add(Flatten(input_shape=input_shape))
+
+        for _ in range(5):
+            dimension = x_train.shape[1] * x_train.shape[2]
+            model.add(Dense(dimension, activation='relu'))
+            model.add(Dropout(0.2))
+
+        # Adding output layer
+        model.add(Dense(num_cls, activation='softmax'))
+
     elif model_name == "CNN_pooling":
 
         # Using max pooling to reduce resolution of the output of the convolution to reduce the number of parameters and
         # so cost of computation, also it is a way to extract particular features such as edges, curves, circles..
 
-        n_filters = 100
+        n_filters = 25
         model.add(Conv2D(n_filters, kernel_size=(3, 3), activation='relu', input_shape=input_shape, padding="same"))
         model.add(MaxPooling2D(pool_size=(2, 2), padding="valid"))
+
         model.add(Conv2D(n_filters, kernel_size=(3, 3), activation='relu', padding="same"))
         model.add(MaxPooling2D(pool_size=(2, 2), padding="valid"))
-        model.add(Conv2DTranspose(n_filters, kernel_size=(3, 3), activation='relu', padding="same"))
+
+        model.add(Conv2DTranspose(n_filters, kernel_size=(26, 26), activation='relu'))
 
         # Transforms matrix feature map to vector for dense layer (fully connected)
         model.add(Flatten())
@@ -94,13 +109,14 @@ def generate_neural_network(x_train, y_train, model_name):
     model.summary()
     
     checkpoints = ModelCheckpoint(filepath=p_weight, verbose=1, save_best_only=True)
-    callbacks_list = [checkpoints]
+    early_stopping = EarlyStopping(monitor='val_loss', patience=1)
+    callbacks_list = [checkpoints, early_stopping]
 
     print(f"Shape of x_train: {str(x_train.shape)}")
     print(f"Shape of y_train: {str(y_train.shape)}")
 
-    history = model.fit(x_train, y_train, epochs=ep, batch_size=batch_size, verbose=1, shuffle=True,
-                        validation_split=val_split, callbacks=callbacks_list)
+    history = model.fit(x_train, y_train, epochs=n_epochs, batch_size=batch_size, verbose=1, shuffle=True,
+                        validation_split=validation_split)
     
     print('CNN weights saved in ' + p_weight)
 
