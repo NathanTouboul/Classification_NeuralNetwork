@@ -3,7 +3,7 @@ import numpy as np
 import time
 from tensorflow.keras.utils import to_categorical
 
-from plotting_saving import plotting_image
+from plotting_saving import plotting_images
 
 DATABASE_DIRECTORY = f"dataset"
 
@@ -29,10 +29,6 @@ def preprocess(filename: str):
 
     num_cls = len(np.unique(y_train))
     print('Number of classes: ' + str(num_cls))
-
-    # Example of handwritten digit with correlated noise
-    n = 3000
-    plotting_image(x_train, n, title=f"handwritten digit {y_train[n]} number {n} with correlated noise")
 
     # Reshape and standardize
     x_train = np.expand_dims(x_train / 255, axis=3)

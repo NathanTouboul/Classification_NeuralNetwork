@@ -21,7 +21,8 @@ Parameters to test
 """
 
 
-def generate_neural_network(x_train, y_train, model_name):
+def generate_neural_network(x_train, y_train, model_name, n_filters=10, optimizer="Adam", batch_size=100,
+                            patience=5):
 
     p_weight = f"./weights/weights_{model_name}.hdf5"
 
@@ -29,9 +30,9 @@ def generate_neural_network(x_train, y_train, model_name):
         os.mkdir('./weights')
 
     # EXPLORE VALUES AND FIND A GOOD SET
-    batch_size = 100  # batch size
+    batch_size = batch_size  # batch size
     validation_split = 0.2  # percentage of samples used for validation (e.g. 0.5)
-    n_epochs = 10  # number of epochs
+    n_epochs = 30  # number of epochs
 
     num_cls = len(np.unique(y_train, axis=0))
 
@@ -70,12 +71,13 @@ def generate_neural_network(x_train, y_train, model_name):
         # Adding output layer
         model.add(Dense(num_cls, activation='softmax'))
 
-    elif model_name == "CNN_full_dense":
+    elif model_name == "full_dense":
 
         model.add(Flatten(input_shape=input_shape))
 
         for _ in range(5):
             dimension = x_train.shape[1] * x_train.shape[2]
+
             model.add(Dense(dimension, activation='relu'))
             model.add(Dropout(0.2))
 
@@ -87,15 +89,17 @@ def generate_neural_network(x_train, y_train, model_name):
         # Using max pooling to reduce resolution of the output of the convolution to reduce the number of parameters and
         # so cost of computation, also it is a way to extract particular features such as edges, curves, circles..
 
-        n_filters = 25
         model.add(Conv2D(n_filters, kernel_size=(3, 3), activation='relu', input_shape=input_shape, padding="same"))
-        model.add(MaxPooling2D(pool_size=(2, 2), padding="valid"))
+        model.add(Conv2D(n_filters, kernel_size=(3, 3), activation='relu', input_shape=input_shape, padding="same"))
 
-        model.add(Conv2D(n_filters, kernel_size=(3, 3), activation='relu', padding="same"))
-        model.add(MaxPooling2D(pool_size=(2, 2), padding="valid"))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
 
-        model.add(Conv2DTranspose(n_filters, kernel_size=(26, 26), activation='relu'))
+        model.add(Conv2D(n_filters, kernel_size=(3, 3), activation='relu', input_shape=input_shape, padding="same"))
+        model.add(Conv2D(n_filters, kernel_size=(3, 3), activation='relu', input_shape=input_shape, padding="same"))
 
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+
+        model.add(Dropout(0.25))
         # Transforms matrix feature map to vector for dense layer (fully connected)
         model.add(Flatten())
 
@@ -103,27 +107,27 @@ def generate_neural_network(x_train, y_train, model_name):
         model.add(Dense(num_cls, activation='softmax'))
 
     # Compiling
-    model.compile(loss=categorical_crossentropy, optimizer=Adam(), metrics=['accuracy'])
+    model.compile(loss=categorical_crossentropy, optimizer=optimizer, metrics=['accuracy'])
 
     # Summary of the model
     model.summary()
     
     checkpoints = ModelCheckpoint(filepath=p_weight, verbose=1, save_best_only=True)
-    early_stopping = EarlyStopping(monitor='val_loss', patience=1)
+    early_stopping = EarlyStopping(monitor='val_loss', patience=patience)
     callbacks_list = [checkpoints, early_stopping]
 
     print(f"Shape of x_train: {str(x_train.shape)}")
     print(f"Shape of y_train: {str(y_train.shape)}")
 
     history = model.fit(x_train, y_train, epochs=n_epochs, batch_size=batch_size, verbose=1, shuffle=True,
-                        validation_split=validation_split)
+                        validation_split=validation_split, callbacks=callbacks_list[1])
     
     print('CNN weights saved in ' + p_weight)
 
     return history
 
 
-def predicting_testing(x_test, model_name):
+def predicting_testing(x_test, y_test, model_name):
 
     print('Shape of testing dataset: ' + str(x_test.shape) + '\n')
 
@@ -131,10 +135,11 @@ def predicting_testing(x_test, model_name):
     p_weight = './weights/weights_' + model_name + '.hdf5'
 
     model = load_model(p_weight)
+
     y_prediction = model.predict(x_test)
+    y = np.argmax(y_prediction, axis=1)
+    predictions_accuracy = np.sum(y == y_test) / len(y_test)
 
-    y = np.amax(y_prediction, axis=1)
+    print(f'Accuracy in the test set: {predictions_accuracy}')
 
-    # predictions_accuracies = np.sum() / len(y_test)
 
-    # print('Accuracy in test set is: '+ vstr(Acc_pred))
