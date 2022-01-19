@@ -1,8 +1,7 @@
-from preprocessing import preprocess
+from preprocess import preprocessing
 from neural_networks import generate_neural_network, predicting_testing
 from plotting_saving import plotting_images, plotting_loss, plotting_comparison
 
-import numpy as np
 
 DATABASE_MNIST = f"MNIST_CorrNoise.npz"
 
@@ -10,7 +9,7 @@ DATABASE_MNIST = f"MNIST_CorrNoise.npz"
 def main():
 
     # Preprocessing step
-    x_train, y_train, x_test, y_test = preprocess(DATABASE_MNIST)
+    x_train, y_train, x_test, y_test = preprocessing(DATABASE_MNIST)
 
     # Plotting Examples
     plotting_images(x_train, y_train, title=f"Noisy Handwritten digits")

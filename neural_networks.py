@@ -1,6 +1,5 @@
 import os
 import numpy as np
-import pickle
 
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
@@ -9,16 +8,6 @@ from tensorflow.keras.layers import Conv2D, Dense, MaxPooling2D, Dropout, Flatte
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.losses import categorical_crossentropy
 from tensorflow.keras.models import load_model
-
-
-"""
-Parameters to test 
-    - Type of layers: Conv2D, MaxPooling2D...
-    - Size of kernel for convolution
-    - number of hidden layers 
-    - optimizer
-
-"""
 
 
 def generate_neural_network(x_train, y_train, model_name, n_filters=10, optimizer="Adam", batch_size=100,

@@ -132,7 +132,5 @@ dmypy.json
 .idea
 
 # Supporting Directories
-dataset/
-figures/
 weights/
 
