@@ -29,7 +29,6 @@ Files in this project:
   - Modifications of parameters: type of layers: (Dense, Conv2D, MaxPooling2D), size of kernel for convolution, number of hidden layers, optimizer...
 - plotting_saving.py: contains functions to plot our results
 
-
 ___
 ### Results
 This project allows us to quickly study the influence of parameters, type of layers for this dataset. It can easily output figures comparing a specific parameter (such as the optimizer used), training and testing accuracies and losses, etc..
