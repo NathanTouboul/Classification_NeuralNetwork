@@ -3,8 +3,7 @@
 ## Design, train and test a Convolutional Neural Network (CNN) for a multi-class classification problem. 
 
 [//]: <> (Description of the project)
-This project is centered on the MNIST handwritten digit database with additive correlated noise.
-The images and class labels are contained in the file 'MNIST_CorrNoise.npz' (inside the directory "dataset").
+This project is centered on the MNIST handwritten digit database, with an additional correlated noise.
 
 ![Image Caption](figures/Noisy%20Handwritten%20digits.png)
 ___
